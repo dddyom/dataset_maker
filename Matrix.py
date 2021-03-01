@@ -101,6 +101,13 @@ class Matrix:
             list_of_coordinates = list_of_coordinates[0]
         return self.save_npy(np.array(list_of_coordinates), True)
 
+    # @staticmethod
+    # def output():
+    #     columns = db.fetchall('matrixes', ['path', 'name', 'coordinates', 'value'])
+    #     for i in columns:
+    #         print(i)
+
+
     @staticmethod
     def strings_from_cash(path) -> str:
         strings = ''
@@ -150,10 +157,13 @@ class Matrix:
             return path
 
     @classmethod
-    def delete_by_name(name):
+    def delete_by_name(name: str) -> None:
+        """get name of matrix to remove from db"""
         db.delete('matrixes', 'name', {name})
 
 
 
-x = Matrix()
-print(x.__dict__)
+
+
+
+print(Matrix.output())
