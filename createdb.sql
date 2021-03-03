@@ -1,5 +1,5 @@
 create table datasets(
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
 
     targets TEXT,
@@ -20,7 +20,7 @@ CREATE TABLE matrixes(
 );
 
 create table chunks(
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     value TEXT,
 
     is_target BOOLEAN,

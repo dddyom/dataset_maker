@@ -1,10 +1,9 @@
-from typing import List
+from typing import List, Tuple
 import numpy as np
-import glob
-import os
 import re
 
 import db
+from input_helper import ForMatrixes
 
 class Matrix:
     _path: str
@@ -18,60 +17,32 @@ class Matrix:
         # if _load_from_db(self):
         #     return
 
-        self._label = self._load_label()
-        self._path = self._load_path()
-        self._name = self._load_name()
+        self._load_label()
+        self._load_path()
+        self._load_name()
 
-        self._value = self._load_value()
-        self._coordinates = self._load_coordinates()
+        self._load_value()
+        self._load_coordinates()
 
         db.insert('matrixes', {'name': self._name, \
         'label': self._label, 'path': self._path, \
         'coordinates': self._coordinates, 'value': self._value})
 
-    @staticmethod
-    def _load_label() -> str:  # BI or SO or SN or SI
-        caches_dict = {'1': 'BI', '2': 'SO', '3': 'SN', '4': 'SI'}
-        print('\nТип кэша: (ожидается индекс)')
-        while True:
-            for key in caches_dict:
-                print(f'{key} --> {caches_dict[key]}')
-            try:
-                label = caches_dict[str(input())]
-            except (UnboundLocalError, KeyError) as e:
-                print(e, 'Ожидается индекс')
-                continue
-            return label
 
-    def _load_path(self) -> str:  # path to cache
-        while True:
-            print(f'Путь до {self._label} кэша:')
-            path = str(input())
-            temp = path + f'/{self._label}*'
-            try:
-                list_of_caches = glob.glob(temp)
-                if not list_of_caches:
-                    raise ValueError
-            except ValueError as e:
-                print(f'Некорректный путь (Либо в папке отсутствует кэш в формате {self._label}*.txt)-->', temp)
-                continue
-            return path
+    def _load_label(self) -> None:  # BI or SO or SN or SI
+        self._label = ForMatrixes.set_label_of_cache()
 
-    def _load_name(self) -> str:  # name of cache
-        while True:
-            print('Имя кэша с матрицей (индекс): ')
-            for index, name in enumerate(os.listdir(self._path)):
-                print(index, ' --> ', name)
-            try:
-                name = os.listdir(self._path)[int(input())]
-            except (IndexError, TypeError, ValueError) as e:
-                print(f'Ожидается индекс от 0 до {len(os.listdir(self._path))}')
-                continue
-            return name[:-4]
+    def _load_path(self) -> None:  # path to cache
+        self._path = ForMatrixes.set_path_of_cache(self._label)
 
-    def _load_value(self) -> str:  # path to created npy with matrix
-        raw = Matrix.strings_from_cash(self._path + '/' + self._name + '.txt')
-        f = Matrix.parse_gen_BI if self._label == 'BI' else Matrix.parse_gen
+    def _load_name(self) -> None:  # name of cache
+
+        self._name = ForMatrixes.set_name_of_cache(self._path)
+
+    def _load_value(self) -> None:  # path to created npy with matrix
+        raw = Matrix.__strings_from_cash(self._path + '/' + self._name + '.txt')
+        f = Matrix.__parse_gen_BI if self._label == 'BI' \
+        else Matrix.__parse_gen
         res = []
         print('Загрузка матрицы...')
         for i in f(raw):
@@ -80,36 +51,24 @@ class Matrix:
             i[1] = list(filter(None, i[1]))
             i[1] = list(map(int, i[1]))
             res.append(i[1])
-        return self.save_npy(np.array(res))
+        self._value = self.save_npy(np.array(res).transpose())
+
 
     def _load_coordinates(self) -> str:  # path to npy with coordinates
-        """Запрашивает и конвертирует координаты цели для кэша, полученного на вход"""
-        int_data = []
+        """Запрашивает и конвертирует координаты цели для кэша,
+         полученного на вход"""
+        list_with_input_coordinates = ForMatrixes.get_coordinates_for_cache(self._name)
         list_of_coordinates = []
-        print(f"Азимут, дальность для цели"
-              f"\n{self._name} "
-              f"\nкэша в формате:"
-              f"\nA1 D1"
-              f"\nA2 D2")
-        input_data = list(iter(input, ''))
-        for i in input_data:
-            int_data.append(list(map(int, i.split())))
-        for i in int_data:
+        for i in list_with_input_coordinates:
             x, y = Matrix.kilometers_and_grades_to_coordinates(i[0], i[1])
             list_of_coordinates.append([x, y])
         if len(list_of_coordinates) == 1:
             list_of_coordinates = list_of_coordinates[0]
-        return self.save_npy(np.array(list_of_coordinates), True)
-
-    # @staticmethod
-    # def output():
-    #     columns = db.fetchall('matrixes', ['path', 'name', 'coordinates', 'value'])
-    #     for i in columns:
-    #         print(i)
+        self._coordinates = self.save_npy(np.array(list_of_coordinates), True)
 
 
     @staticmethod
-    def strings_from_cash(path) -> str:
+    def __strings_from_cash(path) -> str:
         strings = ''
         with open(path, 'r') as f:
             for line in f:
@@ -117,15 +76,17 @@ class Matrix:
             return strings
 
     @staticmethod
-    def parse_gen(raw):
-        """Получает строку с сырым кэшем. Построчно генерирует содержащуюся в нём матрицу"""
+    def __parse_gen(raw):
+        """Получает строку с сырым кэшем. Построчно генерирует
+        содержащуюся в нём матрицу"""
         list_of_strings = re.findall(r"\d+\s*:[^\n]*", raw)
         for string in list_of_strings:
             yield string.split(':')
 
     @staticmethod
-    def parse_gen_BI(raw):
-        """Получает строку с сырым кэшем. Построчно генерирует содержащуюся в нём матрицу. Только для бинарных кэшей
+    def __parse_gen_BI(raw):
+        """Получает строку с сырым кэшем. Построчно генерирует
+        содержащуюся в нём матрицу. Только для бинарных кэшей
         (BI) """
         list_of_strings = re.findall(r"\d+\s*:[^\n]*", raw)
         for string in list_of_strings:
@@ -133,37 +94,43 @@ class Matrix:
 
     @staticmethod
     def kilometers_and_grades_to_coordinates(grades, kilometers):
-        """Получает на вход градусы и километры, возвращает преобразованные для разрешения кэша значения"""
+        """Получает на вход градусы и километры, возвращает
+         преобразованные для разрешения кэша значения"""
         result_of_grades = int(grades * 2048 / 360)
         result_of_kilometers = int(kilometers * 1200 / 360)
         return result_of_grades, result_of_kilometers
 
     def save_npy(self, value, coordinates=False) -> str:  # return path of numpy array
-        while True:
-            print('Путь для сохранения матрицы в npy: ')
-            path = str(input())
-            try:
-                if not os.path.isdir(path):
-                    raise ValueError
+        path = ForMatrixes.get_path_for_npy()
+        temp = path + '/' + self._name
+        if coordinates:
+            temp += '_coordinates'
+        np.save(temp, value)
+        return path
 
-                temp = path + '/' + self._name
-                if coordinates:
-                    temp += '_coordinates'
 
-                np.save(temp, value)
-            except ValueError as e:
-                print('Некорректный путь -->', path)
-                continue
-            return path
-
-    @classmethod
-    def delete_by_name(name: str) -> None:
+    @staticmethod
+    def delete_by_name(key: str) -> None:
         """get name of matrix to remove from db"""
-        db.delete('matrixes', 'name', {name})
+        db.delete('matrixes', 'name', key)
 
+    @staticmethod
+    def fetch_db_matrixes() -> List[Tuple]:
+        result = []
+        temp = db.fetchall('matrixes', ['name', 'coordinates'])
+        for i in temp:
+            d = {'name': i['name'], 'coordinates': \
+            Matrix.cooridnates_from_db(i['coordinates'] + '/' + i['name'])}
+            result.append(d)
+        return result
 
+    @staticmethod
+    def cooridnates_from_db(path: str) -> np.ndarray:
+        try:
+            result = np.load(path + '_coordinates.npy')
+            return result
+        except FileNotFoundError as e:
+            print('Отсутствует файл с координатами')
+            print(path)
 
-
-
-
-print(Matrix.output())
+# x = Matrix()

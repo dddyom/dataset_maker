@@ -34,8 +34,8 @@ def fetchall(table: str, columns: List[str]) -> List[Tuple]:
 
 
 def delete(table: str, column: str, key) -> None:
-    row_id = int(row_id)
-    cursor.execute(f"DELETE FROM {table} WHERE {column}={key}")
+    # row_id = int(row_id)
+    cursor.execute(f"DELETE FROM {table} WHERE {column}='{key}'")
     conn.commit()
 
 
