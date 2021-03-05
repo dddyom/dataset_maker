@@ -11,7 +11,7 @@ create table datasets(
 
 );
 
-CREATE TABLE matrixes(
+CREATE TABLE matrices(
     name TEXT PRIMARY KEY,
     label TEXT,
     path TEXT,
