@@ -1,6 +1,6 @@
 import numpy as np
 
-from Chunk import Chunks
+from Chunks import Chunks
 
 class Dataset:
     name: str
