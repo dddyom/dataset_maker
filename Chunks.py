@@ -1,6 +1,6 @@
 import numpy as np
 from random import randint
-from typing import List
+from typing import List, Dict, Union, Any
 
 from Matrix import Matrix
 import input_helper
@@ -52,7 +52,7 @@ class Chunks:
 
         self._load_chunks()
 
-        self._load_value()
+        self._load_path_to_chunks_array()
 
         db.insert('chunks', {'value': self._value,
                              'is_target': self._is_target,
@@ -156,15 +156,26 @@ class Chunks:
                 width=self._width,
                 length=self._length,
             )
-            print(random_chunk.value)
             random_chunks_list.append(random_chunk.value)
 
         return random_chunks_list
 
-    def _load_value(self):
+    def _load_path_to_chunks_array(self):
         path = input_helper.get_path_for_npy()
         self._value = path + '/' + self._motherMatrixName + '_' + str(self._count) + '.npy'
         np.save(self._value, np.array(self._chunks[1]))
+
+    @staticmethod
+    def fetch_db_chunks() -> List[Dict[str, Union[np.ndarray, Any]]]:
+        result = []
+        temp = db.fetchall('chunks', ['value', 'is_target', 'width', 'length'])
+        for i in temp:
+            d = {'value': i['value'],
+                 'is_target': i['is_target'],
+                 'width': i['width'],
+                 'length': i['length']}
+            result.append(d)
+        return result
 
 
 x = Chunks()
