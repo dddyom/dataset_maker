@@ -3,7 +3,7 @@ import numpy as np
 import re
 
 import db
-from input_helper import ForMatrices
+import input_helper
 
 
 class Matrix:
@@ -30,14 +30,14 @@ class Matrix:
                                'coordinates': self.coordinates, 'value': self.value})
 
     def _load_label(self) -> None:  # BI or SO or SN or SI
-        self.label = ForMatrices.set_label_of_cache()
+        self.label = input_helper.ForMatrices.set_label_of_cache()
 
     def _load_path(self) -> None:  # path to cache
-        self.path = ForMatrices.set_path_of_cache(self.label)
+        self.path = input_helper.ForMatrices.set_path_of_cache(self.label)
 
     def _load_name(self) -> None:  # name of cache
 
-        self.name = ForMatrices.set_name_of_cache(self.path)
+        self.name = input_helper.ForMatrices.set_name_of_cache(self.path)
 
     def _load_value(self) -> None:  # path to created npy with matrix
         raw = Matrix.__strings_from_cash(self.path + '/' + self.name + '.txt')
@@ -56,7 +56,7 @@ class Matrix:
     def _load_coordinates(self) -> None:  # path to npy with coordinates
         """Запрашивает и конвертирует координаты цели для кэша,
          полученного на вход"""
-        list_with_input_coordinates = ForMatrices.get_coordinates_for_cache(self.name)
+        list_with_input_coordinates = input_helper.ForMatrices.get_coordinates_for_cache(self.name)
         list_of_coordinates = []
         for i in list_with_input_coordinates:
             x, y = Matrix.kilometers_and_grades_to_coordinates(i[0], i[1])
@@ -99,7 +99,7 @@ class Matrix:
         return result_of_grades, result_of_kilometers
 
     def save_npy(self, value, coordinates=False) -> str:  # return path of numpy array
-        path = ForMatrices.get_path_for_npy()
+        path = input_helper.get_path_for_npy()
         temp = path + '/' + self.name
         if coordinates:
             temp += '_coordinates'

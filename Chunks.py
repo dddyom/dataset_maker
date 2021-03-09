@@ -1,8 +1,10 @@
 import numpy as np
 from random import randint
+from typing import List
 
 from Matrix import Matrix
-from input_helper import ForChunks
+import input_helper
+import db
 
 
 class Chunk:
@@ -17,11 +19,9 @@ class Chunk:
             distance = length
 
         self.value = mother_matrix[azimuth - width:azimuth + width,
-                                   distance - length: distance + length]
+                     distance - length: distance + length]
 
         self.origin = origin
-
-
 
 
 class Chunks:
@@ -37,7 +37,9 @@ class Chunks:
     _count: int
     _is_target: bool  # target or stray
 
-    # _chunks: List[Chunk]
+    _chunks: List[Chunk]
+
+    _value: str
 
     def __init__(self):
         self._get_matrix_and_coordinates()
@@ -46,7 +48,16 @@ class Chunks:
 
         self._define_type()
 
+        self._define_count()
+
         self._load_chunks()
+
+        self._load_value()
+
+        db.insert('chunks', {'value': self._value,
+                             'is_target': self._is_target,
+                             'width': self._width, 'length': self._length,
+                             'mother_matrix': self._motherMatrixName, 'dataset': ''})
 
     def _get_matrix_and_coordinates(self) -> None:
         yn = {'1': 'Да', '2': 'Нет (Создать новую)'}
@@ -57,7 +68,7 @@ class Chunks:
 
             db_matrices = Matrix.fetch_db_matrices()
             self._motherMatrixPath, self._motherMatrixName, self._coordinates = \
-                ForChunks.choise_matrix_from_list(db_matrices)
+                input_helper.ForChunks.choise_matrix_from_list(db_matrices)
         else:
             mother_matrix = Matrix()
             self._motherMatrixPath = mother_matrix.value
@@ -71,13 +82,16 @@ class Chunks:
             print(f'{key} --> {yn[key]}')
         if input() == '1':
             self._width, self._length = \
-                ForChunks.set_dimensions_of_chunk()
+                input_helper.ForChunks.set_dimensions_of_chunk()
         else:
             self._width = 224
             self._length = 224
 
     def _define_type(self):
-        self._is_target = ForChunks.set_type_of_chunk()
+        self._is_target = input_helper.ForChunks.set_type_of_chunk()
+
+    def _define_count(self):
+        self._count = input_helper.ForChunks.set_count_of_chunk()
 
     def _load_chunks(self):
         if self._is_target:
@@ -90,14 +104,16 @@ class Chunks:
                     current_azimuth = int(i[0])
                     current_distance = int(i[1])
                     random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
-                                                                            current_distance=current_distance)
+                                                                            current_distance=current_distance,
+                                                                            count_of_copy=self._count)
             elif isinstance(coordinates[0], np.int64):
 
                 current_azimuth = int(coordinates[0])
                 current_distance = int(coordinates[1])
                 random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
-                                                                        current_distance=current_distance)
-            return random_chunks_list
+                                                                        current_distance=current_distance,
+                                                                        count_of_copy=self._count)
+            self._chunks = random_chunks_list
 
     def __get_list_with_random_chunks(self, current_azimuth,
                                       current_distance, count_of_copy=5):
@@ -145,7 +161,11 @@ class Chunks:
 
         return random_chunks_list
 
+    def _load_value(self):
+        path = input_helper.get_path_for_npy()
+        self._value = path + '/' + self._motherMatrixName + '_' + str(self._count) + '.npy'
+        np.save(self._value, np.array(self._chunks[1]))
+
 
 x = Chunks()
-print(x._load_chunks())
 print(x.__dict__)

@@ -24,13 +24,9 @@ create table chunks(
     value TEXT,
 
     is_target BOOLEAN,
-    origin BOOLEAN,
 
     width INTEGER,
     length INTEGER,
-
-    azimuth INTEGER,
-    distance INTEGER,
 
     mother_matrix TEXT,
     dataset TEXT,

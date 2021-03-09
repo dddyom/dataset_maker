@@ -66,19 +66,6 @@ class ForMatrices:
                     continue
                 return result
 
-    @staticmethod
-    def get_path_for_npy():
-        while True:
-            print('Путь для сохранения матрицы в npy: ')
-            path = str(input())
-            try:
-                if not os.path.isdir(path):
-                    raise ValueError
-                return path
-            except ValueError as e:
-                print(e, 'Некорректный путь -->', path)
-                continue
-
 
 class ForChunks:
     @staticmethod
@@ -98,17 +85,23 @@ class ForChunks:
     @staticmethod
     def set_dimensions_of_chunk():
         while True:
-            print('Введите ширину: ')
+            print('Введите ширину(min=80): ')
             try:
                 width = int(input())
+                if width < 80:
+                    print('min=80')
+                    continue
                 break
             except (TypeError, ValueError) as e:
                 print('Неверно введены данные, попробуйте ещё раз: ')
         while True:
-            print('Введите длину: ')
+            print('Введите длину:(min=20) ')
             try:
-                lengtn = int(input())
-                return width, lengtn
+                length = int(input())
+                if length < 20:
+                    print('min=20')
+                    continue
+                return width, length
             except (TypeError, ValueError) as e:
                 print(e, 'Неверно введены данные, попробуйте ещё раз: ')
 
@@ -125,3 +118,27 @@ class ForChunks:
                 return True
             elif ind == '2':
                 return False
+
+    @staticmethod
+    def set_count_of_chunk():
+        while True:
+            print('''Введите количество снимков с каждой пары координат
+                    \n''')
+            try:
+                count = int(input())
+                return count
+            except (TypeError, ValueError) as e:
+                print(e, 'Некорректный ввод')
+
+
+def get_path_for_npy():
+    while True:
+        print('Путь для сохранения матрицы в npy: ')
+        path = str(input())
+        try:
+            if not os.path.isdir(path):
+                raise ValueError
+            return path
+        except ValueError as e:
+            print(e, 'Некорректный путь -->', path)
+            continue
