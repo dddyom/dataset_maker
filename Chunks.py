@@ -5,7 +5,7 @@ from typing import List, Dict, Union, Any
 from Matrix import Matrix
 import input_helper
 import db
-
+import config
 
 class Chunk:
     origin: bool
@@ -161,7 +161,10 @@ class Chunks:
         return random_chunks_list
 
     def _load_path_to_chunks_array(self):
-        path = input_helper.get_path_for_npy()
+        if config.path_to_chunks == '':
+            path = input_helper.get_path_for_npy()
+        else:
+            path = config.path_to_chunks
         self._value = path + '/' + self._motherMatrixName + '_' + str(self._count) + '.npy'
         np.save(self._value, np.array(self._chunks[1]))
 

@@ -4,7 +4,7 @@ import re
 
 import db
 import input_helper
-
+import config
 
 class Matrix:
     path: str
@@ -33,7 +33,10 @@ class Matrix:
         self.label = input_helper.ForMatrices.set_label_of_cache()
 
     def _load_path(self) -> None:  # path to cache
-        self.path = input_helper.ForMatrices.set_path_of_cache(self.label)
+        if config.path_to_matrix_in_txt == '':
+            self.path = input_helper.ForMatrices.set_path_of_cache(self.label)
+        else:
+            self.path = config.path_to_matrix_in_txt
 
     def _load_name(self) -> None:  # name of cache
 
@@ -99,7 +102,15 @@ class Matrix:
         return result_of_grades, result_of_kilometers
 
     def save_npy(self, value, coordinates=False) -> str:  # return path of numpy array
-        path = input_helper.get_path_for_npy()
+        if not coordinates and config.path_to_matrix_in_npy == '':
+            path = input_helper.get_path_for_npy()
+        elif not coordinates and config.path_to_matrix_in_npy != '':
+            path = config.path_to_matrix_in_npy
+
+        elif coordinates and config.path_to_coordinates == '':
+            path = input_helper.get_path_for_npy()
+        elif coordinates and config.path_to_coordinates != '':
+            path = config.path_to_coordinates
         temp = path + '/' + self.name
         if coordinates:
             temp += '_coordinates'
