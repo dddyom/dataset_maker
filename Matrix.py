@@ -103,12 +103,12 @@ class Matrix:
 
     def save_npy(self, value, coordinates=False) -> str:  # return path of numpy array
         if not coordinates and config.path_to_matrix_in_npy == '':
-            path = input_helper.get_path_for_npy()
+            path = input_helper.get_path()
         elif not coordinates and config.path_to_matrix_in_npy != '':
             path = config.path_to_matrix_in_npy
 
         elif coordinates and config.path_to_coordinates == '':
-            path = input_helper.get_path_for_npy()
+            path = input_helper.get_path()
         elif coordinates and config.path_to_coordinates != '':
             path = config.path_to_coordinates
         temp = path + '/' + self.name

@@ -10,4 +10,5 @@ b = np.array([[[11, 12],
               [[15, 16],
                [71, 81]]])
 
-print(np.concatenate((a, b)))
+print(np.vstack((a, b)))
+print(np.vstack((a, b)).shape)

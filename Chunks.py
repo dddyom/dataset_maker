@@ -163,7 +163,7 @@ class Chunks:
 
     def _load_path_to_chunks_array(self):
         if config.path_to_chunks == '':
-            path = input_helper.get_path_for_npy()
+            path = input_helper.get_path()
         else:
             path = config.path_to_chunks
         self.value_path = path + '/' + self._motherMatrixName + '_' + str(self.count) + '.npy'

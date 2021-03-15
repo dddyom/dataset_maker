@@ -131,19 +131,6 @@ class ForChunks:
                 print(e, 'Некорректный ввод')
 
 
-def get_path_for_npy():
-    while True:
-        print('Путь для сохранения матрицы в npy: ')
-        path = str(input())
-        try:
-            if not os.path.isdir(path):
-                raise ValueError
-            return path
-        except ValueError as e:
-            print(e, 'Некорректный путь -->', path)
-            continue
-
-
 class ForDatasets:
     @staticmethod
     def choose_chunks_from_list(list_of_matrices):
@@ -157,3 +144,18 @@ class ForDatasets:
                 return value_path, count_of_chunks
             except (IndexError, TypeError, ValueError) as e:
                 print(e, f'Ожидается индекс от 0 до {len(list_of_matrices)}')
+
+
+def get_path():
+    while True:
+        print('Путь для сохранения: ')
+        path = str(input())
+        try:
+            if not os.path.isdir(path):
+                raise ValueError
+            return path
+        except ValueError as e:
+            print(e, 'Некорректный путь -->', path)
+            continue
+
+

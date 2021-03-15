@@ -1,11 +1,14 @@
 import numpy as np
+from pathlib import Path
 
 from Chunks import Chunks
 import input_helper
+import config
 
 
 class Dataset:
     name: str
+    dataset_folder: str
 
     # _targets: str  # path to npy with targets
     # _strays: str  # -/\/-
@@ -22,7 +25,6 @@ class Dataset:
         print('Введите имя для сборки: ')
         self.name = 'dataset_' + str(input())
 
-
     def _load_targets(self):
         targets = None
         most_count_of_chunks = 0
@@ -38,13 +40,21 @@ class Dataset:
                 most_count_of_chunks += current_count
                 if targets is None:
                     targets = np.load(path_to_bunch_of_chunks)
+                    print(targets.shape)
                 else:
-                    targets = np.concatenate((targets, np.load(path_to_bunch_of_chunks)))
+                    targets = np.vstack((targets, np.load(path_to_bunch_of_chunks)))
+                    print(targets.shape)
             elif inp == '2':
+                if config.path_to_datasets == '':
+                    path_to_datasets = input_helper.get_path()
+                else:
+                    path_to_datasets = config.path_to_datasets
+                self.dataset_folder = path_to_datasets + '/' + self.name
+                Path(self.dataset_folder).mkdir(parents=True, exist_ok=True)
+                np.save(self.dataset_folder + '/targets.npy', targets)
+                break
 
-
-
-
+# ПРИ СОЗДАНИИ СВЯЗКИ СНИМКОВ КОСЯК С SHAPE
 
     @staticmethod
     def __one_bunch_of_chunks():
@@ -61,6 +71,7 @@ class Dataset:
             value_of_chunks_path = new_chunks.value_path
             count_of_chunk_in_bunch = new_chunks.count
         return value_of_chunks_path, count_of_chunk_in_bunch
+
 
 if __name__ == '__main__':
     x = Dataset()
