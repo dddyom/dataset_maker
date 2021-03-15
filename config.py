@@ -1,4 +1,5 @@
-path_to_matrix_in_txt = '/home/dddyom/temp/txt'
-path_to_matrix_in_npy = '/home/dddyom/temp/npy'
-path_to_coordinates = '/home/dddyom/temp/coords'
-path_to_chunks = '/home/dddyom/temp/chunks'
+path_to_matrix_in_txt = '/home/dddyom/temp/txt'  # путь до матриц в txt
+path_to_matrix_in_npy = '/home/dddyom/temp/npy'  # путь до матриц в numpy
+path_to_coordinates = '/home/dddyom/temp/coords'  # путь до координат
+path_to_chunks = '/home/dddyom/temp/chunks'  # путь до связок снимков
+path_to_datasets = '/home/dddyom/temp/datasets'  # путь до сборок данных

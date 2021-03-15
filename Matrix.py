@@ -133,5 +133,7 @@ class Matrix:
             result.append(d)
         return result
 
-# x = Matrix()
-print(Matrix.fetch_db_matrices())
+
+if __name__ == '__main__':
+    x = Matrix()
+    print(Matrix.fetch_db_matrices())

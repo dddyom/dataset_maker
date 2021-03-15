@@ -1,4 +1,5 @@
 txt_caches/
 npy_caches/
 npy_coord/
-db/
+db/dataset.db
+temp.py

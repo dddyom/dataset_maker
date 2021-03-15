@@ -22,6 +22,7 @@ CREATE TABLE matrices(
 create table chunks(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     value TEXT,
+    count INTEGER,
 
     is_target BOOLEAN,
 

@@ -7,6 +7,7 @@ import input_helper
 import db
 import config
 
+
 class Chunk:
     origin: bool
     value: str  # path to npy
@@ -27,6 +28,7 @@ class Chunk:
 class Chunks:
     WIDTH_OF_TARGET = 90
     LENGTH_OF_TARGET = 5
+
     _motherMatrixPath: str
     _motherMatrixName: str
     _coordinates: str  # azimuth & distance in points
@@ -34,12 +36,12 @@ class Chunks:
     _width: int
     _length: int
 
-    _count: int
+    count: int
     _is_target: bool  # target or stray
 
     _chunks: List[Chunk]
 
-    _value: str
+    value_path: str
 
     def __init__(self):
         self._get_matrix_and_coordinates()
@@ -54,7 +56,8 @@ class Chunks:
 
         self._load_path_to_chunks_array()
 
-        db.insert('chunks', {'value': self._value,
+        db.insert('chunks', {'value': self.value_path,
+                             'count': self.count,
                              'is_target': self._is_target,
                              'width': self._width, 'length': self._length,
                              'mother_matrix': self._motherMatrixName, 'dataset': ''})
@@ -68,7 +71,7 @@ class Chunks:
 
             db_matrices = Matrix.fetch_db_matrices()
             self._motherMatrixPath, self._motherMatrixName, self._coordinates = \
-                input_helper.ForChunks.choise_matrix_from_list(db_matrices)
+                input_helper.ForChunks.choose_matrix_from_list(db_matrices)
         else:
             mother_matrix = Matrix()
             self._motherMatrixPath = mother_matrix.value
@@ -91,13 +94,12 @@ class Chunks:
         self._is_target = input_helper.ForChunks.set_type_of_chunk()
 
     def _define_count(self):
-        self._count = input_helper.ForChunks.set_count_of_chunk()
+        self.count = input_helper.ForChunks.set_count_of_chunk()
 
     def _load_chunks(self):
         if self._is_target:
             random_chunks_list = []
             path_to_coordinates = self._coordinates + '/' + self._motherMatrixName + '_coordinates.npy'
-            print(path_to_coordinates)
             coordinates = np.load(path_to_coordinates)
             if isinstance(coordinates[0], list):
                 for i in coordinates:
@@ -105,14 +107,14 @@ class Chunks:
                     current_distance = int(i[1])
                     random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
                                                                             current_distance=current_distance,
-                                                                            count_of_copy=self._count)
+                                                                            count_of_copy=self.count)
             elif isinstance(coordinates[0], np.int64):
 
                 current_azimuth = int(coordinates[0])
                 current_distance = int(coordinates[1])
                 random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
                                                                         current_distance=current_distance,
-                                                                        count_of_copy=self._count)
+                                                                        count_of_copy=self.count)
             self._chunks = random_chunks_list
 
     def __get_list_with_random_chunks(self, current_azimuth,
@@ -126,7 +128,6 @@ class Chunks:
 
         distance_between_target_and_edge_length = int(self._length / 2 - length_with_indent / 2)
 
-        print(self._motherMatrixPath)
         origin_chunk = Chunk(
             mother_matrix_path=self._motherMatrixPath,
             mother_matrix_name=self._motherMatrixName,
@@ -165,15 +166,16 @@ class Chunks:
             path = input_helper.get_path_for_npy()
         else:
             path = config.path_to_chunks
-        self._value = path + '/' + self._motherMatrixName + '_' + str(self._count) + '.npy'
-        np.save(self._value, np.array(self._chunks[1]))
+        self.value_path = path + '/' + self._motherMatrixName + '_' + str(self.count) + '.npy'
+        np.save(self.value_path, np.array(self._chunks[1]))
 
     @staticmethod
     def fetch_db_chunks() -> List[Dict[str, Union[np.ndarray, Any]]]:
         result = []
-        temp = db.fetchall('chunks', ['value', 'is_target', 'width', 'length'])
+        temp = db.fetchall('chunks', ['value', 'count', 'is_target', 'width', 'length'])
         for i in temp:
             d = {'value': i['value'],
+                 'count': i['count'],
                  'is_target': i['is_target'],
                  'width': i['width'],
                  'length': i['length']}
@@ -181,5 +183,6 @@ class Chunks:
         return result
 
 
-x = Chunks()
-print(x.__dict__)
+if __name__ == '__main__':
+    x = Chunks()
+    print(x.__dict__)

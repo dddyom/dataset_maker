@@ -69,7 +69,7 @@ class ForMatrices:
 
 class ForChunks:
     @staticmethod
-    def choise_matrix_from_list(list_of_matrices):
+    def choose_matrix_from_list(list_of_matrices):
         while True:
             for index, value in enumerate(list_of_matrices):
                 print(f'{index} --> {value}')
@@ -142,3 +142,18 @@ def get_path_for_npy():
         except ValueError as e:
             print(e, 'Некорректный путь -->', path)
             continue
+
+
+class ForDatasets:
+    @staticmethod
+    def choose_chunks_from_list(list_of_matrices):
+        while True:
+            for index, value in enumerate(list_of_matrices):
+                print(f'{index} --> {value}')
+            try:
+                ind = int(input())
+                value_path = list_of_matrices[ind]['value']
+                count_of_chunks = list_of_matrices[ind]['count']
+                return value_path, count_of_chunks
+            except (IndexError, TypeError, ValueError) as e:
+                print(e, f'Ожидается индекс от 0 до {len(list_of_matrices)}')
