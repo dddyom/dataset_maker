@@ -1,7 +1,10 @@
+__pycache__/Matrix.cpython-38.pyc
+__pycache__/db.cpython-38.pyc
+__pycache__/input_helper.cpython-38.pyc
 __pycache__/
-
 txt_caches/
 npy_caches/
 npy_coord/
 db/dataset.db
 temp.py
+
