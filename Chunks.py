@@ -105,26 +105,24 @@ class Chunks:
         self.count = input_helper.ForChunks.set_count_of_chunk()
 
     def _load_chunks(self):
-        if self._is_target:
-            random_chunks_list = []
-            path_to_coordinates = self._coordinates + '/' + self._motherMatrixName + '_coordinates.npy'
-            coordinates = np.load(path_to_coordinates)
-            if isinstance(coordinates[0], list):
-                for i in coordinates:
-                    current_azimuth = int(i[0])
-                    current_distance = int(i[1])
-                    random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
+        random_chunks_list = []
+        path_to_coordinates = self._coordinates + '/' + self._motherMatrixName + '_coordinates.npy'
+        coordinates = np.load(path_to_coordinates)
+        if isinstance(coordinates[0], list):
+            for i in coordinates:
+                current_azimuth = int(i[0])
+                current_distance = int(i[1])
+                random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
                                                                             current_distance=current_distance,
                                                                             count_of_copy=self.count)
-            elif isinstance(coordinates[0], np.int64):
+        elif isinstance(coordinates[0], np.int64):
 
-                current_azimuth = int(coordinates[0])
-                current_distance = int(coordinates[1])
-                random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
-                                                                        current_distance=current_distance,
-                                                                        count_of_copy=self.count)
-
-            self._chunks = random_chunks_list
+            current_azimuth = int(coordinates[0])
+            current_distance = int(coordinates[1])
+            random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
+                                                                    current_distance=current_distance,
+                                                                    count_of_copy=self.count)
+        self._chunks = random_chunks_list
 
     def __get_list_with_random_chunks(self, current_azimuth,
                                       current_distance, count_of_copy=5):
@@ -184,9 +182,9 @@ class Chunks:
         result = []
         temp = db.fetchall('chunks', ['value', 'count', 'is_target', 'width', 'length'])
         for i in temp:
-            d = {'value': i['value'],
+            d = {'is_target': i['is_target'],
                  'count': i['count'],
-                 'is_target': i['is_target'],
+                 'value': i['value'],
                  'width': i['width'],
                  'length': i['length']}
             result.append(d)
