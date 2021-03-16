@@ -53,24 +53,28 @@ class Dataset:
                 Path(self.dataset_folder).mkdir(parents=True, exist_ok=True)
                 np.save(self.dataset_folder + '/targets.npy', targets)
                 break
-
-# ПРИ СОЗДАНИИ СВЯЗКИ СНИМКОВ КОСЯК С SHAPE
+            else:
+                print('Введите 1 для добавления новых снимков или 2 для завершения')
 
     @staticmethod
     def __one_bunch_of_chunks():
         yn = {'1': 'Да', '2': 'Нет (Создать новую)'}
-        print('Загрузить связку снимков из БД?')
-        for key in yn:
-            print(f'{key} --> {yn[key]}')
-        if input() == '1':
-            db_chunks = Chunks.fetch_db_chunks()
-            value_of_chunks_path, count_of_chunk_in_bunch = \
-                input_helper.ForDatasets.choose_chunks_from_list(db_chunks)
-        else:
-            new_chunks = Chunks()
-            value_of_chunks_path = new_chunks.value_path
-            count_of_chunk_in_bunch = new_chunks.count
-        return value_of_chunks_path, count_of_chunk_in_bunch
+        while True:
+            print('Загрузить связку снимков из БД?')
+            for key in yn:
+                print(f'{key} --> {yn[key]}')
+            if input() == '1':
+                db_chunks = Chunks.fetch_db_chunks()
+                if not db_chunks:
+                    print('БД пуста. Создайте значения')
+                    continue
+                value_of_chunks_path, count_of_chunk_in_bunch = \
+                    input_helper.ForDatasets.choose_chunks_from_list(db_chunks)
+            else:
+                new_chunks = Chunks()
+                value_of_chunks_path = new_chunks.value_path
+                count_of_chunk_in_bunch = new_chunks.count
+            return value_of_chunks_path, count_of_chunk_in_bunch
 
 
 if __name__ == '__main__':

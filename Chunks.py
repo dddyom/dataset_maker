@@ -14,6 +14,8 @@ class Chunk:
 
     def __init__(self, mother_matrix_path, mother_matrix_name, azimuth, distance, width, length, origin=False) -> None:
         mother_matrix = np.load(mother_matrix_path + '/' + mother_matrix_name + '.npy')
+        width = int(width/2)
+        length = int(length/2)
         if azimuth < width:
             azimuth = width
         if distance < length:
@@ -64,19 +66,25 @@ class Chunks:
 
     def _get_matrix_and_coordinates(self) -> None:
         yn = {'1': 'Да', '2': 'Нет (Создать новую)'}
-        print('Загрузить матрицу из БД?')
-        for key in yn:
-            print(f'{key} --> {yn[key]}')
-        if input() == '1':
+        while True:
+            print('Загрузить матрицу из БД?')
+            for key in yn:
+                print(f'{key} --> {yn[key]}')
+            if input() == '1':
 
-            db_matrices = Matrix.fetch_db_matrices()
-            self._motherMatrixPath, self._motherMatrixName, self._coordinates = \
-                input_helper.ForChunks.choose_matrix_from_list(db_matrices)
-        else:
-            mother_matrix = Matrix()
-            self._motherMatrixPath = mother_matrix.value
-            self._motherMatrixName = mother_matrix.name
-            self._coordinates = mother_matrix.coordinates
+                db_matrices = Matrix.fetch_db_matrices()
+                if not db_matrices:
+                    print('БД пуста. Создайте значения')
+                    continue
+                self._motherMatrixPath, self._motherMatrixName, self._coordinates = \
+                    input_helper.ForChunks.choose_matrix_from_list(db_matrices)
+                break
+            else:
+                mother_matrix = Matrix()
+                self._motherMatrixPath = mother_matrix.value
+                self._motherMatrixName = mother_matrix.name
+                self._coordinates = mother_matrix.coordinates
+                break
 
     def _define_dimensions(self) -> None:
         yn = {'1': 'Да', '2': 'Нет'}
@@ -115,6 +123,7 @@ class Chunks:
                 random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
                                                                         current_distance=current_distance,
                                                                         count_of_copy=self.count)
+
             self._chunks = random_chunks_list
 
     def __get_list_with_random_chunks(self, current_azimuth,
@@ -138,9 +147,10 @@ class Chunks:
             origin=True
         )
 
-        random_chunks_list = [origin_chunk]
+        random_chunks_list = [origin_chunk.value]
 
-        for j in range(count_of_copy):
+
+        for j in range(count_of_copy - 1):
             new_azimuth = randint(current_azimuth -
                                   distance_between_target_and_edge_width,
                                   current_azimuth + distance_between_target_and_edge_width)
@@ -167,10 +177,10 @@ class Chunks:
         else:
             path = config.path_to_chunks
         self.value_path = path + '/' + self._motherMatrixName + '_' + str(self.count) + '.npy'
-        np.save(self.value_path, np.array(self._chunks[1]))
+        np.save(self.value_path, np.array(self._chunks))
 
     @staticmethod
-    def fetch_db_chunks() -> List[Dict[str, Union[np.ndarray, Any]]]:
+    def fetch_db_chunks() -> List[Dict[str, Any]]:
         result = []
         temp = db.fetchall('chunks', ['value', 'count', 'is_target', 'width', 'length'])
         for i in temp:
