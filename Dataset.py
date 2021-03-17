@@ -7,6 +7,7 @@ from sklearn.utils import shuffle
 from Chunks import Chunks
 import input_helper
 import config
+import db
 
 
 class Dataset:
@@ -19,14 +20,18 @@ class Dataset:
     _train: str
     _test: str
 
-
-
     def __init__(self):
         self._load_name()
         self._load_chunks()
         self._load_chunks(strays=True)
 
         self._init_train_and_test()
+        db.insert('datasets', {'name': self.name,
+                               'dataset_folder': self.dataset_folder,
+                               'targets': self._targets,
+                               'strays': self._strays,
+                               'train': self._train,
+                               'test': self._test})
 
     def _load_name(self):
         print('Введите имя для сборки: ')
@@ -37,7 +42,7 @@ class Dataset:
             try:
                 chunks = np.load(self._strays)
                 most_count_of_chunks = len(chunks)
-            except BaseException:
+            except Exception:
                 chunks = None
                 most_count_of_chunks = 0
             label = 'ПОМЕХ'
@@ -45,7 +50,7 @@ class Dataset:
             try:
                 chunks = np.load(self._targets)
                 most_count_of_chunks = len(chunks)
-            except BaseException:
+            except Exception:
                 chunks = None
                 most_count_of_chunks = 0
             label = 'ЦЕЛЕЙ'
@@ -133,6 +138,17 @@ class Dataset:
         labels = np.ones(len(arr)) if not strays else np.zeros(len(arr))
         return arr, labels
 
+    @staticmethod
+    def merge_datasets(path):
+        try:
+            npz_train = np.load(path + '_train.npz')
+            npz_test = np.load(path + '_test.npz')
+            x_train, y_train = npz_train['x'], npz_train['y']
+            x_test, y_test = npz_test['x'], npz_test['y']
+            np.savez_compressed(f'{path}_main.npz', x_train=x_train, x_test=x_test,
+                                y_train=y_train, y_test=y_test)
+        except Exception as e:
+            print(e)
 
 if __name__ == '__main__':
     x = Dataset()

@@ -43,7 +43,7 @@ class ForMatrices:
                 name = list_with_caches[int(input())]
                 return name[:-4]
             except (IndexError, TypeError, ValueError) as e:
-                print(f'Ожидается индекс от 0 до {len(list_with_caches)}')
+                print(f'Ожидается индекс от 0 до {len(list_with_caches)-1}')
 
     @staticmethod
     def get_coordinates_for_cache(name) -> List:
@@ -148,7 +148,7 @@ class ForDatasets:
 
 def get_path():
     while True:
-        print('Путь для сохранения: ')
+        print('Введите путь: ')
         path = str(input())
         try:
             if not os.path.isdir(path):

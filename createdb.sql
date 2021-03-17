@@ -2,12 +2,13 @@ create table datasets(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
 
+    dataset_folder TEXT,
+
     targets TEXT,
     strays TEXT,
+
     train TEXT,
     test TEXT,
-
-    main TEXT
 
 );
 
