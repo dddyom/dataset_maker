@@ -2,7 +2,7 @@ import numpy as np
 from pathlib import Path
 
 from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
+# from sklearn.model_selection import train_test_split
 
 from Chunks import Chunks
 import input_helper
