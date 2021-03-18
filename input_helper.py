@@ -85,7 +85,7 @@ class ForChunks:
     @staticmethod
     def set_dimensions_of_chunk():
         while True:
-            print('Введите ширину(min=80): ')
+            print('Введите высоту(min=80): ')
             try:
                 width = int(input())
                 if width < 80:
@@ -95,7 +95,7 @@ class ForChunks:
             except (TypeError, ValueError):
                 print('Неверно введены данные, попробуйте ещё раз: ')
         while True:
-            print('Введите длину:(min=20) ')
+            print('Введите ширину:(min=20) ')
             try:
                 length = int(input())
                 if length < 20:

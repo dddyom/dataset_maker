@@ -30,8 +30,7 @@ class Dataset:
                                'dataset_folder': self.dataset_folder,
                                'targets': self._targets,
                                'strays': self._strays,
-                               'train': self._train,
-                               'test': self._test})
+                               })
 
     def _load_name(self):
         print('Введите имя для сборки: ')
@@ -149,6 +148,7 @@ class Dataset:
                                 y_train=y_train, y_test=y_test)
         except Exception as e:
             print(e)
+
 
 if __name__ == '__main__':
     x = Dataset()

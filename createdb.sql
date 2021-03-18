@@ -5,11 +5,7 @@ create table datasets(
     dataset_folder TEXT,
 
     targets TEXT,
-    strays TEXT,
-
-    train TEXT,
-    test TEXT,
-
+    strays TEXT
 );
 
 CREATE TABLE matrices(
