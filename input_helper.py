@@ -42,8 +42,8 @@ class ForMatrices:
             try:
                 name = list_with_caches[int(input())]
                 return name[:-4]
-            except (IndexError, TypeError, ValueError) as e:
-                print(f'Ожидается индекс от 0 до {len(list_with_caches)-1}')
+            except (IndexError, TypeError, ValueError):
+                print(f'Ожидается индекс от 0 до {len(list_with_caches) - 1}')
 
     @staticmethod
     def get_coordinates_for_cache(name) -> List:
@@ -92,7 +92,7 @@ class ForChunks:
                     print('min=80')
                     continue
                 break
-            except (TypeError, ValueError) as e:
+            except (TypeError, ValueError):
                 print('Неверно введены данные, попробуйте ещё раз: ')
         while True:
             print('Введите длину:(min=20) ')
@@ -145,6 +145,19 @@ class ForDatasets:
             except (IndexError, TypeError, ValueError) as e:
                 print(e, f'Ожидается индекс от 0 до {len(list_of_matrices)}')
 
+    @staticmethod
+    def merge_test_and_train(path_to_datasets):
+        list_with_datasets = os.listdir(path_to_datasets)
+        while True:
+            print('Имя сборки (индекс): ')
+            for index, name in enumerate(list_with_datasets):
+                print(index, ' --> ', name)
+            try:
+                dataset = list_with_datasets[int(input())]
+                return dataset
+            except (IndexError, TypeError, ValueError):
+                print(f'Ожидается индекс от 0 до {len(list_with_datasets) - 1}')
+
 
 def get_path():
     while True:
@@ -157,5 +170,3 @@ def get_path():
         except ValueError as e:
             print(e, 'Некорректный путь -->', path)
             continue
-
-

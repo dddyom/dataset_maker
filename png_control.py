@@ -1,10 +1,13 @@
 import os
 import matplotlib.pyplot as plt
 import numpy as np
-
+import re
+from typing import List
 import config
+import input_helper
 
-def save_to_images(x_array, y_array, results_dir, dif):
+
+def save_to_images(x_array, y_array, results_dir, dif) -> None:
     if not os.path.isdir(results_dir):
         os.makedirs(results_dir)
     for i in range(len(x_array)):
@@ -15,24 +18,68 @@ def save_to_images(x_array, y_array, results_dir, dif):
         plt.savefig(results_dir + sample_file_name)
 
 
-if __name__ == '__main__':
-    dif = 150
-    if config.path_to_datasets == '':
-        print('Введите путь до npz: ')
-        name_of_dir = str(input()) + '/'
-    data = np.load('200_test.npz')
-    x_train, y_train = data['X_train'], data['y_train']
-    x_train = x_train[dif:dif+50]
-    y_train = y_train[dif:dif+50]
-    most_dir = os.path.dirname(__file__)
-    # print('Введите название папки для x_test, y_test: ')
-    # name_of_dir = str(input()) + '/'
-    # images_here = os.path.join(most_dir, name_of_dir)
-    #
-    # save_to_images(x_test, y_test, images_here)
+def get_list_of_npz_arrays(path_to_files) -> List:
+    list_of_npz_arrays = []
+    list_of_dataset_files = os.listdir(path_to_files)
+    for i in list_of_dataset_files:
+        temp = re.findall('npz', i)
+        if temp:
+            list_of_npz_arrays.append(i)
+    if not list_of_npz_arrays:
+        print('Отсутствуют файлы в формате npz')
+    return list_of_npz_arrays
 
-    # print('Введите название папки для x_train, y_train: ')
-    # name_of_dir = str(input()) + '/'
-    name_of_dir = '200_test/'
-    images_here = os.path.join(most_dir, name_of_dir)
-    save_to_images(x_train, y_train, images_here, dif=dif)
+
+def save_png_by_path(most_path, npz_array) -> None:
+    data = np.load(most_path + npz_array)
+    while True:
+        try:
+            x, y = data['x'], data['y']
+            name_of_dir_png = f'{npz_array[:-4]}_png/'
+            png_save_here = most_path + name_of_dir_png
+            save_to_images(x, y, png_save_here, 0)
+        except KeyError:
+            print("Ожидается сборка train или test, не main. В npz архиве не найден массив по ключу 'x'")
+        finally:
+            return
+
+
+def get_npz_array_from_list(list_of_npz_arrays) -> str:
+    while True:
+        print('Имя сборки (индекс): ')
+        for index, value in enumerate(list_of_npz_arrays):
+            print(index, ' --> ', value)
+        try:
+            npz_array = list_of_npz_arrays[int(input())]
+            return npz_array
+        except (IndexError, TypeError, ValueError):
+            print(f'Ожидается индекс от 0 до {len(list_of_npz_arrays) - 1}')
+
+
+def get_dataset_path(path_to_all_datasets) -> List:
+    list_with_datasets = os.listdir(path_to_all_datasets)
+    while True:
+        print('Имя сборки (индекс): ')
+        for index, name in enumerate(list_with_datasets):
+            print(index, ' --> ', name)
+        try:
+            dataset = list_with_datasets[int(input())]
+            path_to_files = path_to_all_datasets + f'/{dataset}/'
+            return path_to_files
+        except (IndexError, TypeError, ValueError):
+            print(f'Ожидается индекс от 0 до {len(list_with_datasets) - 1}')
+
+
+def npz_to_png() -> None:
+    if config.path_to_datasets == '':
+        path_to_datasets = input_helper.get_path()
+    else:
+        path_to_datasets = config.path_to_datasets
+    path_to_dataset_files = get_dataset_path(path_to_datasets)
+    list_of_npz = get_list_of_npz_arrays(path_to_dataset_files)
+    npz_name = get_npz_array_from_list(list_of_npz)
+    save_png_by_path(path_to_dataset_files, npz_name)
+
+
+if __name__ == '__main__':
+    npz_to_png()
