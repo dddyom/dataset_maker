@@ -1,10 +1,22 @@
 import os
+import pathlib
+import re
+import shutil
+from typing import List
+
 import matplotlib.pyplot as plt
 import numpy as np
-import re
-from typing import List
+
 import config
 import input_helper
+
+
+def move_dir(src: str, dst: str, pattern: str = '*'):
+    if not os.path.isdir(dst):
+        pathlib.Path(dst).mkdir(parents=True, exist_ok=True)
+    for f in os.listdir(src):
+        if pattern in f:
+            shutil.move(os.path.join(src, f), os.path.join(dst, f))
 
 
 def save_to_images(x_array, y_array, results_dir, dif) -> None:
@@ -38,6 +50,7 @@ def save_png_by_path(most_path, npz_array) -> None:
             name_of_dir_png = f'{npz_array[:-4]}_png/'
             png_save_here = most_path + name_of_dir_png
             save_to_images(x, y, png_save_here, 0)
+            sort_by_folders(png_save_here)
         except KeyError:
             print("Ожидается сборка train или test, не main. В npz архиве не найден массив по ключу 'x'")
         finally:
@@ -79,6 +92,13 @@ def npz_to_png() -> None:
     list_of_npz = get_list_of_npz_arrays(path_to_dataset_files)
     npz_name = get_npz_array_from_list(list_of_npz)
     save_png_by_path(path_to_dataset_files, npz_name)
+
+
+def sort_by_folders(source):
+    dst1 = os.path.normpath(source + '/targets/')
+    dst2 = os.path.normpath(source + '/strays/')
+    move_dir(source, dst1, pattern='_target.png')
+    move_dir(source, dst2, pattern='_stray.png')
 
 
 if __name__ == '__main__':

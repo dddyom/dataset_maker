@@ -1,7 +1,6 @@
-import os
-
 import config
 import input_helper
+
 from png_control import npz_to_png
 from Matrix import Matrix
 from Chunks import Chunks
