@@ -2,6 +2,8 @@ from typing import List
 import glob
 import os
 
+import config
+
 
 class ForMatrices:
     @staticmethod
@@ -85,7 +87,7 @@ class ForChunks:
     @staticmethod
     def set_dimensions_of_chunk():
         while True:
-            print('Введите высоту(min=80): ')
+            print('Введите ширину(min=80): ')
             try:
                 width = int(input())
                 if width < 80:
@@ -95,7 +97,7 @@ class ForChunks:
             except (TypeError, ValueError):
                 print('Неверно введены данные, попробуйте ещё раз: ')
         while True:
-            print('Введите ширину:(min=20) ')
+            print('Введите длину:(min=20) ')
             try:
                 length = int(input())
                 if length < 20:
@@ -157,6 +159,15 @@ class ForDatasets:
                 return dataset
             except (IndexError, TypeError, ValueError):
                 print(f'Ожидается индекс от 0 до {len(list_with_datasets) - 1}')
+
+    @staticmethod
+    def get_path_of_dataset():
+        if config.path_to_datasets == '':
+            path_to_datasets = get_path()
+        else:
+            path_to_datasets = config.path_to_datasets
+
+        return path_to_datasets
 
 
 def get_path():

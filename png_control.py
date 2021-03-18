@@ -11,6 +11,14 @@ import config
 import input_helper
 
 
+def copy_to_dir(src: str, dst: str, pattern: str = '*'):
+    if not os.path.isdir(dst):
+        pathlib.Path(dst).mkdir(parents=True, exist_ok=True)
+    for f in os.listdir(src):
+        if pattern in f:
+            shutil.copy(os.path.join(src, f), os.path.join(dst, f))
+
+
 def move_dir(src: str, dst: str, pattern: str = '*'):
     if not os.path.isdir(dst):
         pathlib.Path(dst).mkdir(parents=True, exist_ok=True)
@@ -30,16 +38,16 @@ def save_to_images(x_array, y_array, results_dir, dif) -> None:
         plt.savefig(results_dir + sample_file_name)
 
 
-def get_list_of_npz_arrays(path_to_files) -> List:
-    list_of_npz_arrays = []
+def get_list_of_files_by_pattern(path_to_files, pattern='*') -> List:
+    list_of_pattern = []
     list_of_dataset_files = os.listdir(path_to_files)
     for i in list_of_dataset_files:
-        temp = re.findall('npz', i)
+        temp = re.findall(pattern, i)
         if temp:
-            list_of_npz_arrays.append(i)
-    if not list_of_npz_arrays:
-        print('Отсутствуют файлы в формате npz')
-    return list_of_npz_arrays
+            list_of_pattern.append(i)
+    if not list_of_pattern:
+        print(f'Отсутствуют файлы в формате {pattern}')
+    return list_of_pattern
 
 
 def save_png_by_path(most_path, npz_array) -> None:
@@ -57,19 +65,19 @@ def save_png_by_path(most_path, npz_array) -> None:
             return
 
 
-def get_npz_array_from_list(list_of_npz_arrays) -> str:
+def get_sought_by_list_files(list_of_files) -> str:
     while True:
-        print('Имя сборки (индекс): ')
-        for index, value in enumerate(list_of_npz_arrays):
+        print('Имя искомого объекта (индекс): ')
+        for index, value in enumerate(list_of_files):
             print(index, ' --> ', value)
         try:
-            npz_array = list_of_npz_arrays[int(input())]
-            return npz_array
+            sought = list_of_files[int(input())]
+            return sought
         except (IndexError, TypeError, ValueError):
-            print(f'Ожидается индекс от 0 до {len(list_of_npz_arrays) - 1}')
+            print(f'Ожидается индекс от 0 до {len(list_of_files) - 1}')
 
 
-def get_dataset_path(path_to_all_datasets) -> List:
+def get_dataset_path(path_to_all_datasets) -> str:
     list_with_datasets = os.listdir(path_to_all_datasets)
     while True:
         print('Имя сборки (индекс): ')
@@ -89,8 +97,8 @@ def npz_to_png() -> None:
     else:
         path_to_datasets = config.path_to_datasets
     path_to_dataset_files = get_dataset_path(path_to_datasets)
-    list_of_npz = get_list_of_npz_arrays(path_to_dataset_files)
-    npz_name = get_npz_array_from_list(list_of_npz)
+    list_of_npz = get_list_of_files_by_pattern(path_to_dataset_files, 'npz')
+    npz_name = get_sought_by_list_files(list_of_npz)
     save_png_by_path(path_to_dataset_files, npz_name)
 
 
@@ -99,7 +107,22 @@ def sort_by_folders(source):
     dst2 = os.path.normpath(source + '/strays/')
     move_dir(source, dst1, pattern='_target.png')
     move_dir(source, dst2, pattern='_stray.png')
+    dir_of_all_chunks = source + '/all/'
+    copy_to_dir(src=dst1, dst=dir_of_all_chunks, pattern='png')
+    copy_to_dir(src=dst2, dst=dir_of_all_chunks, pattern='png')
 
 
 if __name__ == '__main__':
-    npz_to_png()
+    # npz_to_png()
+    pass
+    # if config.path_to_datasets == '':
+    #     path_to_datasets = input_helper.get_path()
+    # else:
+    #     path_to_datasets = config.path_to_datasets
+    # dataset_path = get_dataset_path(path_to_datasets)
+    #
+    # png_list = get_list_of_files_by_pattern(dataset_path, 'png')
+    # png_path = get_sought_by_list_files(png_list)
+    #
+    # dir_of_all_chunks = dataset_path + png_path + '/all/'
+    # dir_of_all_chunks = '/home/dddyom/temp/datasets/dataset_1/dataset_1_test_png/all/'

@@ -14,15 +14,15 @@ class Chunk:
 
     def __init__(self, mother_matrix_path, mother_matrix_name, azimuth, distance, width, length, origin=False) -> None:
         mother_matrix = np.load(mother_matrix_path + '/' + mother_matrix_name + '.npy')
-        width = int(width/2)
-        length = int(length/2)
+        width = int(width / 2)
+        length = int(length / 2)
         if azimuth < width:
             azimuth = width
         if distance < length:
             distance = length
 
-        self.value = mother_matrix[azimuth - width:azimuth + width,
-                     distance - length: distance + length]
+        self.value = mother_matrix[azimuth - length:azimuth + length,
+                     distance - width: distance + width]
 
         self.origin = origin
 
@@ -113,8 +113,8 @@ class Chunks:
                 current_azimuth = int(i[0])
                 current_distance = int(i[1])
                 random_chunks_list = self.__get_list_with_random_chunks(current_azimuth=current_azimuth,
-                                                                            current_distance=current_distance,
-                                                                            count_of_copy=self.count)
+                                                                        current_distance=current_distance,
+                                                                        count_of_copy=self.count)
         elif isinstance(coordinates[0], np.int64):
 
             current_azimuth = int(coordinates[0])
@@ -146,7 +146,6 @@ class Chunks:
         )
 
         random_chunks_list = [origin_chunk.value]
-
 
         for j in range(count_of_copy - 1):
             new_azimuth = randint(current_azimuth -
