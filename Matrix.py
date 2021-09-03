@@ -1,6 +1,7 @@
 from typing import List, Dict, Union, Any
 import numpy as np
 import re
+import struct
 
 import db
 import input_helper
@@ -30,8 +31,8 @@ class Matrix:
                                'coordinates': self.coordinates, 'value': self.value})
 
     def _load_label(self) -> None:  # BI or SO or SN or SI
-        self.label = input_helper.ForMatrices.set_label_of_cache()
-
+        # self.label = input_helper.ForMatrices.set_label_of_cache()
+        self.label = "SO"
     def _load_path(self) -> None:  # path to cache
         if config.path_to_matrix_in_txt == '':
             self.path = input_helper.ForMatrices.set_path_of_cache(self.label)
@@ -43,18 +44,19 @@ class Matrix:
         self.name = input_helper.ForMatrices.set_name_of_cache(self.path)
 
     def _load_value(self) -> None:  # path to created npy with matrix
-        raw = Matrix.__strings_from_cash(self.path + '/' + self.name + '.txt')
-        f = Matrix.__parse_gen_bi if self.label == 'BI' \
-            else Matrix.__parse_gen
-        res = []
-        print('Загрузка матрицы...')
-        for i in f(raw):
-            if self.label != 'BI':
-                i[1] = i[1].split(' ')
-            i[1] = list(filter(None, i[1]))
-            i[1] = list(map(int, i[1]))
-            res.append(i[1])
-        self.value = self.save_npy(np.array(res).transpose())
+        self.value = self.save_npy(Matrix.dat2nparr(self.path + self.name + ".dat"))
+        # raw = Matrix.__strings_from_cash(self.path + '/' + self.name + '.txt')
+        # f = Matrix.__parse_gen_bi if self.label == 'BI' \
+        #     else Matrix.__parse_gen
+        # res = []
+        # print('Загрузка матрицы...')
+        # for i in f(raw):
+        #     if self.label != 'BI':
+        #         i[1] = i[1].split(' ')
+        #     i[1] = list(filter(None, i[1]))
+        #     i[1] = list(map(int, i[1]))
+        #     res.append(i[1])
+        # self.value = self.save_npy(np.array(res).transpose())
 
     def _load_coordinates(self) -> None:  # path to npy with coordinates
         """Запрашивает и конвертирует координаты цели для кэша,
@@ -67,6 +69,20 @@ class Matrix:
         if len(list_of_coordinates) == 1:
             list_of_coordinates = list_of_coordinates[0]
         self.coordinates = self.save_npy(np.array(list_of_coordinates), True)
+
+
+    @staticmethod
+    def dat2nparr(dat_file_dir):
+        buffer = []
+        dat_file = open(dat_file_dir, "rb").read()
+
+        for i in range(0, len(dat_file), 2):
+            buffer.append(struct.unpack("<H", dat_file[i: i + 2]))
+
+        matrix = np.reshape(np.array(buffer), (2048, 1200))
+
+        return matrix
+
 
     @staticmethod
     def __strings_from_cash(path) -> str:

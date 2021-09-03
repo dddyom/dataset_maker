@@ -26,13 +26,13 @@ class ForMatrices:
             path = str(input())
             temp = path + f'/{label}*'
             try:
-                list_of_caches = glob.glob(temp)
+                list_of_caches = glob.glob(temp).sort()
                 if not list_of_caches:
                     raise ValueError
                 return path
             except ValueError as e:
                 print(e, f'''Некорректный путь (Либо в папке отсутствует
-                кэш в формате {label}*.txt)-->''', temp)
+                кэш в формате {label}*)-->''', temp)
 
     @staticmethod
     def set_name_of_cache(path):
